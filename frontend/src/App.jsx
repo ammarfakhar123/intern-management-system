@@ -7,6 +7,8 @@ import LoadingSpinner from './components/common/LoadingSpinner';
 
 // Pages
 import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
+import LandingPage from './pages/public/LandingPage';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -47,30 +49,6 @@ const ProtectedRoute = ({ children, allowedRole }) => {
   return children;
 };
 
-// Root Redirect Component
-const RootRedirect = () => {
-  const { isAuthenticated, role, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-surface-bg flex items-center justify-center">
-        <LoadingSpinner label="Loading InternPulse..." size="lg" />
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return (
-    <Navigate
-      to={role === 'admin' ? '/admin/dashboard' : '/intern/dashboard'}
-      replace
-    />
-  );
-};
-
 function App() {
   return (
     <AuthProvider>
@@ -106,7 +84,9 @@ function App() {
 
         <Routes>
           {/* Public Routes */}
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
           {/* Admin Protected Routes */}
           <Route
@@ -139,9 +119,8 @@ function App() {
             <Route path="profile" element={<InternProfile />} />
           </Route>
 
-          {/* Catch-all and Root Redirect */}
-          <Route path="/" element={<RootRedirect />} />
-          <Route path="*" element={<RootRedirect />} />
+          {/* Catch-all */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

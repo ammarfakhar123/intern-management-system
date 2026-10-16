@@ -7,6 +7,57 @@ const generateToken = (id) => {
   });
 };
 
+// @desc    Register a new company / admin account
+// @route   POST /api/auth/register
+// @access  Public
+const registerAdmin = async (req, res) => {
+  try {
+    const { name, email, password, companyName, phone, department } = req.body;
+
+    if (!name || !email || !password || !companyName) {
+      return res.status(400).json({
+        message: 'Admin name, email, password, and company name are required',
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+    }
+
+    const existingUser = await User.findOne({ email: email.toLowerCase().trim() });
+    if (existingUser) {
+      return res.status(400).json({ message: 'An account with this email address already exists' });
+    }
+
+    const admin = await User.create({
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
+      password,
+      role: 'admin',
+      companyName: companyName.trim(),
+      phone: phone ? phone.trim() : '',
+      department: department ? department.trim() : 'Operations & Talent',
+      status: 'Active',
+      joiningDate: new Date(),
+    });
+
+    res.status(201).json({
+      _id: admin._id,
+      name: admin.name,
+      email: admin.email,
+      role: admin.role,
+      companyName: admin.companyName,
+      department: admin.department,
+      phone: admin.phone,
+      joiningDate: admin.joiningDate,
+      status: admin.status,
+      token: generateToken(admin._id),
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 // @desc    Auth user & get token
 // @route   POST /api/auth/login
 // @access  Public
@@ -26,6 +77,7 @@ const login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        companyName: user.companyName,
         department: user.department,
         phone: user.phone,
         joiningDate: user.joiningDate,
@@ -76,6 +128,7 @@ const updateProfile = async (req, res) => {
       name: updatedUser.name,
       email: updatedUser.email,
       role: updatedUser.role,
+      companyName: updatedUser.companyName,
       department: updatedUser.department,
       phone: updatedUser.phone,
       joiningDate: updatedUser.joiningDate,
@@ -87,4 +140,4 @@ const updateProfile = async (req, res) => {
   }
 };
 
-module.exports = { login, getMe, updateProfile };
+module.exports = { registerAdmin, login, getMe, updateProfile };

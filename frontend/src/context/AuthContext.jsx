@@ -51,6 +51,26 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const register = async (registerData) => {
+    try {
+      const res = await API.post('/auth/register', registerData);
+      const { token: receivedToken, ...userData } = res.data;
+
+      localStorage.setItem('token', receivedToken);
+      localStorage.setItem('user', JSON.stringify(userData));
+
+      setToken(receivedToken);
+      setUser(userData);
+
+      toast.success(`Company registered successfully! Welcome, ${userData.name}!`);
+      return { success: true, user: userData };
+    } catch (error) {
+      const message = error.response?.data?.message || 'Registration failed. Please check the details and try again.';
+      toast.error(message);
+      return { success: false, message };
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -74,6 +94,7 @@ export const AuthProvider = ({ children }) => {
         isAuthenticated: !!user && !!token,
         role: user?.role || null,
         login,
+        register,
         logout,
         updateUser,
       }}

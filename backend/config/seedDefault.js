@@ -19,6 +19,7 @@ const seedDefaultsIfEmpty = async () => {
       email: 'admin@internpulse.com',
       password: 'admin123',
       role: 'admin',
+      companyName: 'TechCorp Global',
       phone: '+1 (555) 019-2834',
       department: 'Talent & HR',
       status: 'Active',
@@ -31,6 +32,8 @@ const seedDefaultsIfEmpty = async () => {
       email: 'alex.morgan@internpulse.com',
       password: 'intern123',
       role: 'intern',
+      companyName: 'TechCorp Global',
+      companyAdmin: admin._id,
       phone: '+1 (555) 234-5678',
       department: 'Frontend Engineering',
       status: 'Active',
@@ -43,6 +46,8 @@ const seedDefaultsIfEmpty = async () => {
       email: 'sophia.chen@internpulse.com',
       password: 'intern123',
       role: 'intern',
+      companyName: 'TechCorp Global',
+      companyAdmin: admin._id,
       phone: '+1 (555) 345-6789',
       department: 'Backend Engineering',
       status: 'Active',
@@ -55,6 +60,8 @@ const seedDefaultsIfEmpty = async () => {
       email: 'liam.patel@internpulse.com',
       password: 'intern123',
       role: 'intern',
+      companyName: 'TechCorp Global',
+      companyAdmin: admin._id,
       phone: '+1 (555) 456-7890',
       department: 'UI/UX Design',
       status: 'Active',
@@ -67,6 +74,7 @@ const seedDefaultsIfEmpty = async () => {
       title: 'Design Responsive Navigation Bar',
       description: 'Implement a mobile-responsive navigation bar with clean dropdowns, smooth animations, and active state indicators using Tailwind CSS.',
       assignedTo: intern1._id,
+      companyAdmin: admin._id,
       priority: 'High',
       dueDate: new Date(Date.now() + 5 * 86400000),
       status: 'Completed',
@@ -76,6 +84,7 @@ const seedDefaultsIfEmpty = async () => {
       title: 'Build Reusable StatCard Component',
       description: 'Create an animated metric card component supporting icons, percentage changes, and smooth hover elevation states.',
       assignedTo: intern1._id,
+      companyAdmin: admin._id,
       priority: 'Medium',
       dueDate: new Date(Date.now() + 3 * 86400000),
       status: 'Submitted',
@@ -85,6 +94,7 @@ const seedDefaultsIfEmpty = async () => {
       title: 'Integrate User Profile Settings Form',
       description: 'Develop an interactive profile update form with client-side validation and toast notifications.',
       assignedTo: intern1._id,
+      companyAdmin: admin._id,
       priority: 'Low',
       dueDate: new Date(Date.now() + 7 * 86400000),
       status: 'In Progress',
@@ -94,6 +104,7 @@ const seedDefaultsIfEmpty = async () => {
       title: 'Implement Dark Mode Theme Toggle',
       description: 'Add a persistent theme switcher utilizing local storage and Tailwind CSS dark mode class strategy.',
       assignedTo: intern1._id,
+      companyAdmin: admin._id,
       priority: 'Medium',
       dueDate: new Date(Date.now() + 10 * 86400000),
       status: 'Pending',
@@ -104,6 +115,7 @@ const seedDefaultsIfEmpty = async () => {
       title: 'Implement JWT Authentication Middleware',
       description: 'Write robust express middleware to verify bearer tokens, extract user context, and return standard JSON error responses.',
       assignedTo: intern2._id,
+      companyAdmin: admin._id,
       priority: 'High',
       dueDate: new Date(Date.now() + 2 * 86400000),
       status: 'Completed',
@@ -113,6 +125,7 @@ const seedDefaultsIfEmpty = async () => {
       title: 'Build REST APIs for Task CRUD',
       description: 'Create Express routes and Mongoose controllers for task creation, retrieval with pagination/filters, update, and deletion.',
       assignedTo: intern2._id,
+      companyAdmin: admin._id,
       priority: 'High',
       dueDate: new Date(Date.now() + 4 * 86400000),
       status: 'Completed',
@@ -122,6 +135,7 @@ const seedDefaultsIfEmpty = async () => {
       title: 'Add Request Rate Limiting & Validation',
       description: 'Protect public auth endpoints against brute force with IP-based rate limiting and input sanitization.',
       assignedTo: intern2._id,
+      companyAdmin: admin._id,
       priority: 'Medium',
       dueDate: new Date(Date.now() + 6 * 86400000),
       status: 'Pending',
@@ -132,6 +146,7 @@ const seedDefaultsIfEmpty = async () => {
       title: 'Design Intern Dashboard Wireframes in Figma',
       description: 'Create high-fidelity wireframes for the intern overview, task tracking table, and progress gauges.',
       assignedTo: intern3._id,
+      companyAdmin: admin._id,
       priority: 'Medium',
       dueDate: new Date(Date.now() + 1 * 86400000),
       status: 'Submitted',
@@ -141,6 +156,7 @@ const seedDefaultsIfEmpty = async () => {
       title: 'Design System Color & Typography Tokens',
       description: 'Establish standard hex color palette and typography scales for consistency across dashboard cards and badges.',
       assignedTo: intern3._id,
+      companyAdmin: admin._id,
       priority: 'Low',
       dueDate: new Date(Date.now() + 8 * 86400000),
       status: 'In Progress',
@@ -203,9 +219,7 @@ const seedDefaultsIfEmpty = async () => {
       submittedAt: new Date(Date.now() - 6 * 3600000),
     });
 
-    console.log('✅ Default demo dataset ready!');
-    console.log('👤 Admin: admin@internpulse.com / admin123');
-    console.log('👥 Interns: alex.morgan@internpulse.com, sophia.chen@internpulse.com / intern123');
+    console.log('✅ Default demo dataset ready with company association!');
   } catch (error) {
     console.error('Failed to seed default demo data:', error.message);
   }

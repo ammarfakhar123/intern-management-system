@@ -123,8 +123,25 @@ const Login = () => {
             </Button>
           </form>
 
+          {/* Register Company Callout */}
+          <div className="mt-6 pt-5 border-t border-slate-200 text-center space-y-2">
+            <p className="text-xs text-slate-600 font-medium">
+              Are you a company or organization?{' '}
+              <button
+                type="button"
+                onClick={() => navigate('/register')}
+                className="font-bold text-indigo-600 hover:text-indigo-800 transition-colors"
+              >
+                Register as Admin →
+              </button>
+            </p>
+            <p className="text-[11px] text-slate-500">
+              Intern accounts are created directly by company admins.
+            </p>
+          </div>
+
           {/* Quick Demo Logins Section */}
-          <div className="mt-8 pt-6 border-t border-slate-200">
+          <div className="mt-5 pt-5 border-t border-slate-200">
             <p className="text-xs font-bold uppercase tracking-wider text-slate-500 text-center mb-3">
               One-Click Demo Accounts
             </p>
@@ -161,6 +178,16 @@ const Login = () => {
                 </div>
               </button>
             </div>
+          </div>
+
+          <div className="mt-5 text-center">
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              className="text-xs text-slate-500 hover:text-slate-800 transition-colors"
+            >
+              ← Back to Homepage
+            </button>
           </div>
         </div>
       </div>

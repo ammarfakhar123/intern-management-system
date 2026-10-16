@@ -3,7 +3,7 @@ const User = require('../models/User');
 const Submission = require('../models/Submission');
 const Feedback = require('../models/Feedback');
 
-// @desc    Get all tasks (Admin gets all, intern gets their assigned tasks)
+// @desc    Get all tasks (Admin gets their company's tasks, intern gets their assigned tasks)
 // @route   GET /api/tasks
 // @access  Private
 const getTasks = async (req, res) => {
@@ -14,8 +14,12 @@ const getTasks = async (req, res) => {
     // Intern can only access tasks assigned to them
     if (req.user.role === 'intern') {
       query.assignedTo = req.user._id;
-    } else if (internId) {
-      query.assignedTo = internId;
+    } else {
+      // Admin accesses tasks created within their company
+      query.$or = [{ companyAdmin: req.user._id }, { companyAdmin: null }];
+      if (internId) {
+        query.assignedTo = internId;
+      }
     }
 
     if (status) {
@@ -101,6 +105,7 @@ const createTask = async (req, res) => {
       title: title.trim(),
       description: description.trim(),
       assignedTo,
+      companyAdmin: req.user._id,
       priority: priority || 'Medium',
       dueDate,
       status: 'Pending',

@@ -26,6 +26,16 @@ const userSchema = new mongoose.Schema(
       enum: ['admin', 'intern'],
       default: 'intern',
     },
+    companyName: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    companyAdmin: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
     phone: {
       type: String,
       trim: true,

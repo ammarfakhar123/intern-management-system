@@ -2,40 +2,46 @@ const User = require('../models/User');
 const Task = require('../models/Task');
 const Feedback = require('../models/Feedback');
 
-// @desc    Get Admin Dashboard metrics
+// @desc    Get Admin Dashboard metrics for the company
 // @route   GET /api/dashboard/admin
 // @access  Private/Admin
 const getAdminStats = async (req, res) => {
   try {
-    const totalInterns = await User.countDocuments({ role: 'intern' });
-    const totalTasks = await Task.countDocuments();
-    const completedTasks = await Task.countDocuments({ status: 'Completed' });
-    const pendingTasks = await Task.countDocuments({ status: { $in: ['Pending', 'In Progress'] } });
-    const submittedTasks = await Task.countDocuments({ status: 'Submitted' });
+    const adminTaskFilter = { $or: [{ companyAdmin: req.user._id }, { companyAdmin: null }] };
+    const adminInternFilter = { role: 'intern', $or: [{ companyAdmin: req.user._id }, { companyAdmin: null }] };
+
+    const totalInterns = await User.countDocuments(adminInternFilter);
+    const totalTasks = await Task.countDocuments(adminTaskFilter);
+    const completedTasks = await Task.countDocuments({ ...adminTaskFilter, status: 'Completed' });
+    const pendingTasks = await Task.countDocuments({
+      ...adminTaskFilter,
+      status: { $in: ['Pending', 'In Progress'] },
+    });
+    const submittedTasks = await Task.countDocuments({ ...adminTaskFilter, status: 'Submitted' });
 
     // Task status counts for Donut Chart
     const statusBreakdown = [
-      { name: 'Pending', value: await Task.countDocuments({ status: 'Pending' }), color: '#F59E0B' },
-      { name: 'In Progress', value: await Task.countDocuments({ status: 'In Progress' }), color: '#3B82F6' },
+      { name: 'Pending', value: await Task.countDocuments({ ...adminTaskFilter, status: 'Pending' }), color: '#F59E0B' },
+      { name: 'In Progress', value: await Task.countDocuments({ ...adminTaskFilter, status: 'In Progress' }), color: '#3B82F6' },
       { name: 'Submitted', value: submittedTasks, color: '#8B5CF6' },
       { name: 'Completed', value: completedTasks, color: '#10B981' },
     ];
 
     // Priority breakdown
     const priorityBreakdown = [
-      { name: 'High', value: await Task.countDocuments({ priority: 'High' }), color: '#EF4444' },
-      { name: 'Medium', value: await Task.countDocuments({ priority: 'Medium' }), color: '#F59E0B' },
-      { name: 'Low', value: await Task.countDocuments({ priority: 'Low' }), color: '#10B981' },
+      { name: 'High', value: await Task.countDocuments({ ...adminTaskFilter, priority: 'High' }), color: '#EF4444' },
+      { name: 'Medium', value: await Task.countDocuments({ ...adminTaskFilter, priority: 'Medium' }), color: '#F59E0B' },
+      { name: 'Low', value: await Task.countDocuments({ ...adminTaskFilter, priority: 'Low' }), color: '#10B981' },
     ];
 
-    // Recent 5 interns
-    const recentInterns = await User.find({ role: 'intern' })
+    // Recent interns
+    const recentInterns = await User.find(adminInternFilter)
       .select('-password')
       .sort({ createdAt: -1 })
       .limit(5);
 
-    // Recent 5 tasks
-    const recentTasks = await Task.find()
+    // Recent tasks
+    const recentTasks = await Task.find(adminTaskFilter)
       .populate('assignedTo', 'name email department')
       .sort({ createdAt: -1 })
       .limit(5);
@@ -48,6 +54,7 @@ const getAdminStats = async (req, res) => {
         pendingTasks,
         submittedTasks,
       },
+      companyName: req.user.companyName || 'My Organization',
       statusBreakdown,
       priorityBreakdown,
       recentInterns,
@@ -107,6 +114,7 @@ const getInternStats = async (req, res) => {
       intern: {
         name: req.user.name,
         email: req.user.email,
+        companyName: req.user.companyName,
         department: req.user.department,
         status: req.user.status,
         joiningDate: req.user.joiningDate,

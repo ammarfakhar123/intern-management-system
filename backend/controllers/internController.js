@@ -3,19 +3,27 @@ const Task = require('../models/Task');
 const Submission = require('../models/Submission');
 const Feedback = require('../models/Feedback');
 
-// @desc    Get all interns (with search and department filter)
+// @desc    Get all interns for the current company/admin
 // @route   GET /api/interns
 // @access  Private/Admin
 const getInterns = async (req, res) => {
   try {
     const { search, department, status } = req.query;
-    let query = { role: 'intern' };
+
+    let query = {
+      role: 'intern',
+      $or: [{ companyAdmin: req.user._id }, { companyAdmin: null }],
+    };
 
     if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
-        { department: { $regex: search, $options: 'i' } },
+      query.$and = [
+        {
+          $or: [
+            { name: { $regex: search, $options: 'i' } },
+            { email: { $regex: search, $options: 'i' } },
+            { department: { $regex: search, $options: 'i' } },
+          ],
+        },
       ];
     }
 
@@ -65,7 +73,7 @@ const getInternById = async (req, res) => {
       return res.status(404).json({ message: 'Intern not found' });
     }
 
-    // Role check: Only admin or the intern themselves can view
+    // Role check: Only admin of this company or the intern themselves can view
     if (req.user.role !== 'admin' && req.user._id.toString() !== intern._id.toString()) {
       return res.status(403).json({ message: 'Forbidden: Access denied' });
     }
@@ -95,7 +103,7 @@ const getInternById = async (req, res) => {
   }
 };
 
-// @desc    Create new intern account
+// @desc    Create new intern account (Company Admin creates Intern)
 // @route   POST /api/interns
 // @access  Private/Admin
 const createIntern = async (req, res) => {
@@ -116,6 +124,8 @@ const createIntern = async (req, res) => {
       email: email.toLowerCase().trim(),
       password,
       role: 'intern',
+      companyName: req.user.companyName || '',
+      companyAdmin: req.user._id,
       phone: phone ? phone.trim() : '',
       department: department || 'Engineering',
       joiningDate: joiningDate || Date.now(),
