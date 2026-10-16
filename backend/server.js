@@ -17,14 +17,30 @@ app.use(cors({
 }));
 app.use(express.json());
 
+const mongoose = require('mongoose');
+
 // Ensure database is connected on every request (crucial for serverless environments)
 app.use(async (req, res, next) => {
+  // Allow health check and root ping without DB
+  if (req.path === '/' || req.path === '/api/health') {
+    return next();
+  }
+
   try {
     await connectDB();
+    if (mongoose.connection.readyState < 1) {
+      return res.status(503).json({
+        message: 'Database connection is still establishing. Please retry in a few seconds.',
+      });
+    }
     next();
   } catch (err) {
     console.error('Database connection middleware error:', err.message);
-    next();
+    return res.status(503).json({
+      message: process.env.VERCEL
+        ? 'Database connection failed. Please add MONGODB_URI in your Vercel Project Settings (Environment Variables).'
+        : `Database unavailable: ${err.message}`,
+    });
   }
 });
 

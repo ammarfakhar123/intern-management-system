@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 
 let mongodInstance = null;
 
+// Fail fast instead of hanging requests for 10,000ms if DB is not connected
+mongoose.set('bufferCommands', false);
+mongoose.set('bufferTimeoutMS', 3000);
+
 const connectDB = async () => {
   // If already connected, reuse existing Mongoose connection
   if (mongoose.connection.readyState >= 1) {
@@ -12,7 +16,8 @@ const connectDB = async () => {
 
   try {
     const conn = await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 3000,
+      serverSelectionTimeoutMS: 4000,
+      connectTimeoutMS: 5000,
     });
     console.log(`✅ MongoDB Connected to: ${conn.connection.host}/${conn.connection.name}`);
     return conn;
