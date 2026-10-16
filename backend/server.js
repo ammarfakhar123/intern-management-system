@@ -3,6 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const { connectDB } = require('./config/db');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
+const { seedDefaultsIfEmpty } = require('./config/seedDefault');
 
 // Load environment variables
 dotenv.config();
@@ -16,7 +17,22 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Health Check
+// Ensure database is connected on every request (crucial for serverless environments)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error('Database connection middleware error:', err.message);
+    next();
+  }
+});
+
+// Root & Health Checks
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', service: 'InternPulse Backend API', timestamp: new Date() });
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', service: 'Intern Management API', timestamp: new Date() });
 });
@@ -35,15 +51,17 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-// Connect to Database and start server
-const { seedDefaultsIfEmpty } = require('./config/seedDefault');
-
+// Connect to Database and start server locally
 connectDB().then(async () => {
   await seedDefaultsIfEmpty();
-  app.listen(PORT, () => {
-    console.log(`🚀 InternPulse Backend Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-    console.log(`📡 API Health: http://localhost:${PORT}/api/health`);
-  });
+  if (process.env.NODE_ENV !== 'test') {
+    app.listen(PORT, () => {
+      console.log(`🚀 InternPulse Backend Server running on port ${PORT}`);
+      console.log(`📡 API Health: http://localhost:${PORT}/api/health`);
+    });
+  }
 }).catch((err) => {
   console.error('Failed to initialize server database connection:', err.message);
 });
+
+module.exports = app;
