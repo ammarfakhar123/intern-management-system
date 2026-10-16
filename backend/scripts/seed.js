@@ -1,0 +1,240 @@
+const dotenv = require('dotenv');
+const { connectDB, disconnectDB } = require('../config/db');
+const User = require('../models/User');
+const Task = require('../models/Task');
+const Submission = require('../models/Submission');
+const Feedback = require('../models/Feedback');
+
+dotenv.config();
+
+const seedData = async () => {
+  try {
+    await connectDB();
+    console.log('🌱 Seeding database with initial data...');
+
+    // Clear existing data
+    await User.deleteMany({});
+    await Task.deleteMany({});
+    await Submission.deleteMany({});
+    await Feedback.deleteMany({});
+
+    console.log('🧹 Existing data wiped.');
+
+    // 1. Create Admin User
+    const admin = await User.create({
+      name: 'System Administrator',
+      email: 'admin@internpulse.com',
+      password: 'admin123',
+      role: 'admin',
+      phone: '+1 (555) 019-2834',
+      department: 'Talent & HR',
+      status: 'Active',
+      joiningDate: new Date('2024-01-10'),
+    });
+    console.log('👤 Admin created:', admin.email);
+
+    // 2. Create Intern Users
+    const intern1 = await User.create({
+      name: 'Alex Morgan',
+      email: 'alex.morgan@internpulse.com',
+      password: 'intern123',
+      role: 'intern',
+      phone: '+1 (555) 234-5678',
+      department: 'Frontend Engineering',
+      status: 'Active',
+      joiningDate: new Date('2025-01-15'),
+      endDate: new Date('2025-07-15'),
+    });
+
+    const intern2 = await User.create({
+      name: 'Sophia Chen',
+      email: 'sophia.chen@internpulse.com',
+      password: 'intern123',
+      role: 'intern',
+      phone: '+1 (555) 345-6789',
+      department: 'Backend Engineering',
+      status: 'Active',
+      joiningDate: new Date('2025-02-01'),
+      endDate: new Date('2025-08-01'),
+    });
+
+    const intern3 = await User.create({
+      name: 'Liam Patel',
+      email: 'liam.patel@internpulse.com',
+      password: 'intern123',
+      role: 'intern',
+      phone: '+1 (555) 456-7890',
+      department: 'UI/UX Design',
+      status: 'Active',
+      joiningDate: new Date('2025-02-15'),
+      endDate: new Date('2025-08-15'),
+    });
+
+    console.log('👥 Interns created: Alex, Sophia, Liam');
+
+    // 3. Create Tasks for Alex Morgan
+    const alexTask1 = await Task.create({
+      title: 'Design Responsive Navigation Bar',
+      description: 'Implement a mobile-responsive navigation bar with clean dropdowns, smooth animations, and active state indicators using Tailwind CSS.',
+      assignedTo: intern1._id,
+      priority: 'High',
+      dueDate: new Date(Date.now() + 5 * 86400000), // +5 days
+      status: 'Completed',
+    });
+
+    const alexTask2 = await Task.create({
+      title: 'Build Reusable StatCard Component',
+      description: 'Create an animated metric card component supporting icons, percentage changes, and smooth hover elevation states.',
+      assignedTo: intern1._id,
+      priority: 'Medium',
+      dueDate: new Date(Date.now() + 3 * 86400000), // +3 days
+      status: 'Submitted',
+    });
+
+    const alexTask3 = await Task.create({
+      title: 'Integrate User Profile Settings Form',
+      description: 'Develop an interactive profile update form with client-side validation and toast notifications.',
+      assignedTo: intern1._id,
+      priority: 'Low',
+      dueDate: new Date(Date.now() + 7 * 86400000), // +7 days
+      status: 'In Progress',
+    });
+
+    const alexTask4 = await Task.create({
+      title: 'Implement Dark Mode Theme Toggle',
+      description: 'Add a persistent theme switcher utilizing local storage and Tailwind CSS dark mode class strategy.',
+      assignedTo: intern1._id,
+      priority: 'Medium',
+      dueDate: new Date(Date.now() + 10 * 86400000), // +10 days
+      status: 'Pending',
+    });
+
+    // 4. Create Tasks for Sophia Chen
+    const sophiaTask1 = await Task.create({
+      title: 'Implement JWT Authentication Middleware',
+      description: 'Write robust express middleware to verify bearer tokens, extract user context, and return standard JSON error responses.',
+      assignedTo: intern2._id,
+      priority: 'High',
+      dueDate: new Date(Date.now() + 2 * 86400000),
+      status: 'Completed',
+    });
+
+    const sophiaTask2 = await Task.create({
+      title: 'Build REST APIs for Task CRUD',
+      description: 'Create Express routes and Mongoose controllers for task creation, retrieval with pagination/filters, update, and deletion.',
+      assignedTo: intern2._id,
+      priority: 'High',
+      dueDate: new Date(Date.now() + 4 * 86400000),
+      status: 'Completed',
+    });
+
+    const sophiaTask3 = await Task.create({
+      title: 'Add Request Rate Limiting & Validation',
+      description: 'Protect public auth endpoints against brute force with IP-based rate limiting and input sanitization.',
+      assignedTo: intern2._id,
+      priority: 'Medium',
+      dueDate: new Date(Date.now() + 6 * 86400000),
+      status: 'Pending',
+    });
+
+    // 5. Create Tasks for Liam Patel
+    const liamTask1 = await Task.create({
+      title: 'Design Intern Dashboard Wireframes in Figma',
+      description: 'Create high-fidelity wireframes for the intern overview, task tracking table, and progress progress gauges.',
+      assignedTo: intern3._id,
+      priority: 'Medium',
+      dueDate: new Date(Date.now() + 1 * 86400000),
+      status: 'Submitted',
+    });
+
+    const liamTask2 = await Task.create({
+      title: 'Design System Color & Typography Tokens',
+      description: 'Establish standard hex color palette and typography scales for consistency across dashboard cards and badges.',
+      assignedTo: intern3._id,
+      priority: 'Low',
+      dueDate: new Date(Date.now() + 8 * 86400000),
+      status: 'In Progress',
+    });
+
+    console.log('📋 Tasks created.');
+
+    // 6. Create Submissions
+    // Alex's completed task submission
+    await Submission.create({
+      taskId: alexTask1._id,
+      internId: intern1._id,
+      githubLink: 'https://github.com/internpulse/navbar-component',
+      projectLink: 'https://navbar-demo.internpulse.dev',
+      description: 'Completed responsive navbar with Framer Motion slide-in transitions on mobile viewports.',
+      status: 'Approved',
+      submittedAt: new Date(Date.now() - 2 * 86400000),
+    });
+
+    // Feedback for Alex's task 1
+    await Feedback.create({
+      taskId: alexTask1._id,
+      internId: intern1._id,
+      adminId: admin._id,
+      comment: 'Excellent work! The mobile animations are smooth and the code is clean and modular. Approved!',
+      decision: 'approved',
+    });
+
+    // Alex's submitted task waiting for admin review
+    await Submission.create({
+      taskId: alexTask2._id,
+      internId: intern1._id,
+      githubLink: 'https://github.com/internpulse/stat-card',
+      projectLink: 'https://statcard.internpulse.dev',
+      description: 'Implemented StatCard component with dynamic trend arrows and responsive padding. Ready for review.',
+      status: 'Submitted',
+      submittedAt: new Date(Date.now() - 4 * 3600000), // 4 hours ago
+    });
+
+    // Sophia's completed tasks
+    await Submission.create({
+      taskId: sophiaTask1._id,
+      internId: intern2._id,
+      githubLink: 'https://github.com/internpulse/auth-middleware',
+      projectLink: '',
+      description: 'Implemented JWT token verification with expiration checks and clean error forwarding.',
+      status: 'Approved',
+      submittedAt: new Date(Date.now() - 3 * 86400000),
+    });
+
+    await Feedback.create({
+      taskId: sophiaTask1._id,
+      internId: intern2._id,
+      adminId: admin._id,
+      comment: 'Secure implementation and good test coverage for token verification. Approved.',
+      decision: 'approved',
+    });
+
+    // Liam's submitted task
+    await Submission.create({
+      taskId: liamTask1._id,
+      internId: intern3._id,
+      githubLink: '',
+      projectLink: 'https://figma.com/file/intern-dashboard-wireframes',
+      description: 'Completed desktop and tablet layout wireframes with full component library specifications.',
+      status: 'Submitted',
+      submittedAt: new Date(Date.now() - 6 * 3600000),
+    });
+
+    console.log('🚀 Seed data inserted successfully!');
+    console.log('\nDefault Credentials:');
+    console.log('───────────────────────────────────────────────────');
+    console.log('Admin Account:  admin@internpulse.com   / admin123');
+    console.log('Intern Account: alex.morgan@internpulse.com / intern123');
+    console.log('Intern Account: sophia.chen@internpulse.com / intern123');
+    console.log('Intern Account: liam.patel@internpulse.com  / intern123');
+    console.log('───────────────────────────────────────────────────\n');
+
+    await disconnectDB();
+    process.exit(0);
+  } catch (error) {
+    console.error('Error with data seeding:', error);
+    process.exit(1);
+  }
+};
+
+seedData();

@@ -1,0 +1,23 @@
+{
+  "name": "intern-management-system",
+  "version": "1.0.0",
+  "description": "Full-Stack Intern Management & Progress Tracking System",
+  "scripts": {
+    "start": "node backend/server.js",
+    "backend": "cd backend && npm run dev",
+    "frontend": "cd frontend && npm run dev",
+    "seed": "cd backend && npm run seed",
+    "test": "node backend/scripts/test-e2e.js"
+  },
+  "keywords": [
+    "react",
+    "nodejs",
+    "express",
+    "mongodb",
+    "framer-motion",
+    "tailwind",
+    "intern-management"
+  ],
+  "author": "Internship Candidate",
+  "license": "ISC"
+}
